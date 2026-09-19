@@ -8,3 +8,4 @@ class AppAssets {
 
   //images
 }
+String getImagePath(String imageName) => 'assets/images/$imageName.jpg';
