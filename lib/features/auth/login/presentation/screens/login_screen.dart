@@ -8,8 +8,9 @@ import 'package:workwise/core/design_system/spacing/app_spacing.dart';
 import 'package:workwise/core/design_system/widgets/text/app_text.dart';
 import 'package:workwise/core/localization/localization_extension.dart';
 import 'package:workwise/core/routing/app_routes.dart';
-import 'package:workwise/features/auth/login/presentation/logic/login_cubit.dart';
-import 'package:workwise/features/auth/login/presentation/logic/login_state.dart';
+import 'package:workwise/core/services/service_locator.dart';
+import 'package:workwise/features/auth/login/presentation/cubit/login_cubit.dart';
+import 'package:workwise/features/auth/login/presentation/cubit/login_state.dart';
 import 'package:workwise/features/auth/login/presentation/widgets/login_form.dart';
 import 'package:workwise/features/auth/login/presentation/widgets/login_header_widget.dart';
 import 'package:workwise/features/auth/login/presentation/widgets/login_warning_banner.dart';
@@ -23,7 +24,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LoginCubit(),
+      create: (_) => sl<LoginCubit>(),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.onPrimary,
         body: SafeArea(
@@ -49,11 +50,10 @@ class LoginScreen extends StatelessWidget {
                       const Gap(AppSpacing.space16),
                     ] else if (state is LoginErrorState) ...[
                       LoginWarningBanner(
-                        message: context.l10n.signInWithCorporateCredentials,
+                        message: state.message,
                         isSessionExpired: false,
                       ),
                     ],
-
                     const LoginForm(),
                     Row(
                       children: [
