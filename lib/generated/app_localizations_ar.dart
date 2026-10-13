@@ -603,7 +603,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileActiveFullTime => 'نشط / دوام كامل';
 
   @override
-  String get profilePhotoUpdated => 'تم تحديث الصورة الشخصية بنجاح';
+  String get profilePhotoUpdated => 'Profile photo updated successfully';
 
   @override
   String get logoutConfirmMessage => 'هل أنت متأكد أنك تريد تسجيل الخروج؟';
@@ -625,6 +625,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get appDisplayLanguage => 'لغة عرض التطبيق';
+
+  @override
+  String get logoutConfirmationMessage => 'هل أنت متأكد أنك تريد تسجيل الخروج؟';
+
+  @override
+  String get addNoteBeforeSubmit => 'يرجى إضافة ملاحظة قبل الإرسال';
+
+  @override
+  String get uploadingFiles => 'جاري رفع الملفات...';
+
+  @override
+  String get invalidTaskId => 'معرف المهمة غير صالح';
+
+  @override
+  String get taskSubmitFailed =>
+      'فشل في إرسال المهمة. تأكد من الاتصال بالإنترنت وحاول مرة أخرى';
 
   @override
   String get details => 'التفاصيل';
@@ -667,4 +683,38 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get december => 'ديسمبر';
+
+  @override
+  String get policyAssistantWelcome =>
+      'أهلًا، أنا مساعد سياسات الموارد البشرية. اسألني عن سياسات الإجازات أو المزايا أو أرصدتك الحالية.';
+
+  @override
+  String get policyAssistantThinking => 'جاري التفكير...';
+
+  @override
+  String get deleteMessageTitle => 'حذف الرسالة';
+
+  @override
+  String get deleteFailedMessageConfirmation =>
+      'هل تريد حذف الرسالة التي لم يتم إرسالها؟';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get policyMessageNotSentLongPress =>
+      'لم يتم الإرسال • اضغط مطولًا للحذف';
+
+  @override
+  String get sendMessage => 'إرسال الرسالة';
+
+  @override
+  String get employeeIdNotAvailable => 'رقم الموظف غير متوفر.';
+
+  @override
+  String get policyAssistantNoAnswer => 'لم يتم توفير رد.';
+
+  @override
+  String get policyAssistantUnexpectedError =>
+      'حدث خطأ غير متوقع. حاول مرة أخرى.';
 }
