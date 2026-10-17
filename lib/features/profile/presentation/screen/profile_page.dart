@@ -11,6 +11,7 @@ import 'package:workwise/core/design_system/colors/app_colors.dart';
 import 'package:workwise/core/design_system/spacing/app_spacing.dart';
 import 'package:workwise/core/design_system/widgets/buttons/app_button.dart';
 import 'package:workwise/core/design_system/widgets/feedback/app_dialog.dart';
+import 'package:workwise/core/design_system/widgets/feedback/app_error_state.dart';
 import 'package:workwise/core/design_system/widgets/layout/app_card.dart';
 import 'package:workwise/core/design_system/widgets/text/app_text.dart';
 import 'package:workwise/core/localization/localization_extension.dart';
@@ -21,7 +22,6 @@ import 'package:workwise/features/profile/widgets/job_details_section.dart';
 import 'package:workwise/features/profile/widgets/profile_card.dart';
 import 'package:workwise/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:workwise/features/profile/presentation/cubit/profile_state.dart';
-import 'package:workwise/features/auth/login/data/Repository/auth_repository.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -34,6 +34,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Uint8List? _avatarPreview;
 
   Future<void> _changeAvatar() async {
+    final profileCubit = context.read<ProfileCubit>();
+    final language = Localizations.localeOf(context).languageCode;
     final avatar = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       maxWidth: 1024,
@@ -49,12 +51,15 @@ class _ProfilePageState extends State<ProfilePage> {
     // Show preview immediately
     setState(() => _avatarPreview = bytes);
 
-    final previousAvatarUrl =
-        context.read<ProfileCubit>().state.profile?.avatarUrl;
+    final previousAvatarUrl = context
+        .read<ProfileCubit>()
+        .state
+        .profile
+        ?.avatarUrl;
 
     // Upload to server
-    final success = await context.read<ProfileCubit>().updateProfile(
-      language: Localizations.localeOf(context).languageCode,
+    final success = await profileCubit.updateProfile(
+      language: language,
       avatar: avatar,
     );
 
@@ -66,6 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
       if (previousAvatarUrl != null && previousAvatarUrl.isNotEmpty) {
         await CachedNetworkImage.evictFromCache(previousAvatarUrl);
       }
+
       if (!mounted) return;
 
       setState(() => _avatarPreview = null);
@@ -86,15 +92,77 @@ class _ProfilePageState extends State<ProfilePage> {
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
         final employeeId = sl<LocalStorage>().getUserId();
-        await context.read<ProfileCubit>().getProfile(
+        await profileCubit.getProfile(
           employeeId: employeeId,
-          language: Localizations.localeOf(context).languageCode,
+          language: language,
         );
       }
     } else {
       // Revert preview on failure
       setState(() => _avatarPreview = null);
     }
+  }
+
+  Future<void> _deleteAvatar() async {
+    final profileCubit = context.read<ProfileCubit>();
+    final profile = profileCubit.state.profile;
+    final fileId = profile?.avatarFileId;
+    if (profile == null || fileId == null) return;
+
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: context.l10n.profilePhotoDelete,
+      message: context.l10n.profilePhotoDeleteConfirm,
+      confirmText: context.l10n.profilePhotoDelete,
+      cancelText: context.l10n.cancel,
+    );
+    if (!confirmed || !mounted) return;
+
+    final success = await profileCubit.deleteProfileAvatar(fileId);
+    if (!mounted) return;
+
+    if (success) {
+      if (profile.avatarUrl.isNotEmpty) {
+        await CachedNetworkImage.evictFromCache(profile.avatarUrl);
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: AppText(
+            context.l10n.profilePhotoDeleted,
+            color: Colors.white,
+          ),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<bool> _saveProfileFields({
+    String? name,
+    String? phone,
+    String? address,
+  }) async {
+    final profileCubit = context.read<ProfileCubit>();
+    final language = Localizations.localeOf(context).languageCode;
+    final successMessage = context.l10n.profileUpdateSuccess;
+    final success = await profileCubit.updateProfile(
+      language: language,
+      name: name,
+      phone: phone,
+      address: address,
+    );
+    if (!mounted) return success;
+
+    if (success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(successMessage)));
+    }
+
+    return success;
   }
 
   Widget _buildLogoutButton(BuildContext context) {
@@ -111,10 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
         );
 
         if (confirmed && context.mounted) {
-          if (sl.isRegistered<FcmNotificationService>()) {
-            await sl<FcmNotificationService>().handleLogout();
-          }
-          await sl<AuthRepository>().logout();
+          await sl<FcmNotificationService>().handleLogout();
           if (!context.mounted) return;
           context.go('/loginScreen');
         }
@@ -163,17 +228,29 @@ class _ProfilePageState extends State<ProfilePage> {
                       avatarPreview: _avatarPreview,
                       isUpdatingAvatar: state.isLoading,
                       onChangeAvatar: _changeAvatar,
+                      onDeleteAvatar: _deleteAvatar,
                     ),
                     if (state.isFailure && state.message != null) ...[
                       Gap(AppSpacing.space8.h),
-                      AppText(state.message!, color: AppColors.textSecondary),
+                      AppText(
+                        state.failure?.message ?? state.message!,
+                        color: AppColors.textSecondary,
+                      ),
                     ],
                     Gap(AppSpacing.space16.h),
-                    JobDetailsSection(profile: state.profile!),
+                    JobDetailsSection(
+                      profile: state.profile!,
+                      onSave: _saveProfileFields,
+                    ),
                   ] else if (state.isLoading ||
                       state.status == ProfileStatus.initial)
                     Skeletonizer(
                       enabled: true,
+                      effect: const ShimmerEffect(
+                        baseColor: Color(0xFFF0F3F5),
+                        highlightColor: Color(0xFFFAFBFC),
+                        duration: Duration(milliseconds: 1700),
+                      ),
                       child: Column(
                         children: [
                           _ProfileSkeleton(),
@@ -183,16 +260,25 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     )
                   else if (state.isFailure)
-                    Center(
-                      child: AppText(
-                        state.message ?? context.l10n.profile,
-                        color: AppColors.textSecondary,
-                      ),
+                    AppErrorState(
+                      message:
+                          state.failure?.message ??
+                          state.message ??
+                          context.l10n.profile,
+                      onRetry: () {
+                        context.read<ProfileCubit>().getProfile(
+                          employeeId: sl<LocalStorage>().getUserId(),
+                          language: Localizations.localeOf(
+                            context,
+                          ).languageCode,
+                        );
+                      },
                     ),
                   if (!isLoadingProfile) ...[
                     Gap(AppSpacing.space20.h),
                     _buildLogoutButton(context),
                   ],
+                  Gap(AppSpacing.space12.h),
                 ],
               );
             },
@@ -315,3 +401,6 @@ class _ProfileSkeleton extends StatelessWidget {
     );
   }
 }
+
+
+

@@ -1250,6 +1250,72 @@ abstract class AppLocalizations {
   /// **'Profile photo updated successfully'**
   String get profilePhotoUpdated;
 
+  /// No description provided for @profilePhotoChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose photo'**
+  String get profilePhotoChoose;
+
+  /// No description provided for @profilePhotoDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete profile photo'**
+  String get profilePhotoDelete;
+
+  /// No description provided for @profilePhotoDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete your profile photo?'**
+  String get profilePhotoDeleteConfirm;
+
+  /// No description provided for @profilePhotoDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo deleted successfully'**
+  String get profilePhotoDeleted;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get editProfile;
+
+  /// No description provided for @profileName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get profileName;
+
+  /// No description provided for @profilePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get profilePhone;
+
+  /// No description provided for @profileAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get profileAddress;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @profileUpdateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile details updated successfully'**
+  String get profileUpdateSuccess;
+
+  /// No description provided for @profileNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a name'**
+  String get profileNameRequired;
+
   /// No description provided for @logoutConfirmMessage.
   ///
   /// In en, this message translates to:
@@ -1465,6 +1531,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get policyAssistantUnexpectedError;
+
+  /// No description provided for @noLeaveBalancesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No leave balances found'**
+  String get noLeaveBalancesFound;
+
+  /// No description provided for @noLeaveHistoryFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No leave history found'**
+  String get noLeaveHistoryFound;
 }
 
 class _AppLocalizationsDelegate
